@@ -1,161 +1,84 @@
-import { useState, useEffect, useContext } from "react";
+import { useState } from 'react';
+import { useEffect } from 'react';
+import { useContext } from 'react';
 import Home from "../../Contexts/Home";
-import Line from "./Line";
-import Size from "../Data/Size";
-import Clothes from "../Data/Clothes";
-import Color from "../Data/Color";
+import Line from './Line';
 
 const sortData = [
-  { v: "default", t: "Default" },
-  { v: "price_asc", t: "Price 1-9" },
-  { v: "price_desc", t: "Price 9-1" },
+    { v: 'default', t: 'Default' },
+    { v: 'price_asc', t: 'Price 1-9' },
+    { v: 'price_desc', t: 'Price 9-1' },
+    { v: 'rate_asc', t: 'Rating 1-9' },
+    { v: 'rate_desc', t: 'Rating 9-1' }
 ];
 
 function List() {
-  const { rubs, setRubs } = useContext(Home);
-  const [type, setType] = useState("0");
-  const [size, setSize] = useState("0");
-  const [color, setColor] = useState("0");
-  const [sortBy, setSortBy] = useState("default");
-  const [stats, setStats] = useState({ rubsCount: null });
-  const [rubFiltered, setRubFiltered] = useState([]);
 
-  useEffect(() => {
-    if (null === rubs) {
-      return;
+    const { movies, setMovies, filterOn, filterWhat } = useContext(Home);
+
+    const [sortBy, setSortBy] = useState('default');
+    const [stats, setStats] = useState({movieCount: null});
+
+    const resetFilter = () => {
+        setMovies(m => m.map(mo => ({ ...mo, show: true })));
+        filterOn.current = false;
+        filterWhat.current = null;
     }
-    setStats((s) => ({ ...s, rubsCount: rubs.length }));
-  }, [rubs]);
 
-  useEffect(() => {
-    switch (sortBy) {
-      case "price_asc":
-        setRubs((r) => [...r]?.sort((a, b) => a.price - b.price));
-        break;
-      case "price_desc":
-        setRubs((r) => [...r]?.sort((b, a) => a.price - b.price));
-        break;
-      default:
-        setRubs((r) => [...(r ?? [])]?.sort((a, b) => a.row - b.row));
-    }
-  }, [sortBy, setRubs]);
+    useEffect(() => {
+        if (null === movies) {
+            return;
+        }
+        setStats(s => ({...s, movieCount: movies.length}));
+    }, [movies]);
 
-  useEffect(() => {
-    if (rubs !== null) {
-      setRubFiltered([...rubs]?.filter((el) => el.color === color));
-    }
-  }, [color, rubs]);
+    useEffect(() => {
+        switch (sortBy) {
+            case 'price_asc':
+                setMovies(m => [...m].sort((a, b) => a.price - b.price));
+                break;
+            case 'price_desc':
+                setMovies(m => [...m].sort((b, a) => a.price - b.price));
+                break;
+            case 'rate_asc':
+                setMovies(m => [...m].sort((x, c) => x.rating - c.rating));
+                break;
+            case 'rate_desc':
+                setMovies(m => [...m].sort((jo, no) => no.rating - jo.rating));
+                break;
+            default:
+                setMovies(m => [...m ?? []].sort((a, b) => a.row - b.row));
+        }
 
-  useEffect(() => {
-    if (rubs !== null) {
-      setRubFiltered([...rubs]?.filter((el) => el.size === size));
-    }
-  }, [rubs, size]);
+    }, [sortBy, setMovies]);
 
-  useEffect(() => {
-    if (rubs !== null) {
-      setRubFiltered([...rubs]?.filter((el) => el.type === type));
-    }
-  }, [rubs, type]);
-
-  const stop = () => {
-    setRubFiltered([]);
-    setColor('0');
-    setSize('0');
-    setType('0')
-  }
-console.log(rubFiltered, rubs)
-  return (
-    <>
-      <div className="card m-4">
-        <h5 className="card-header">Sort</h5>
-        <div className="card-body">
-          <div className="mb-3">
-            <label className="form-label">Sort by price:</label>
-            <select
-              className="form-select"
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-            >
-              {sortData.map((c) => (
-                <option key={c.v} value={c.v}>
-                  {c.t}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="mb-3">
-            <label className="form-label">Sort by type:</label>
-            <select
-              className="form-select mb-4"
-              value={type}
-              onChange={(e) => setType(e.target.value)}
-              aria-label="Default select example"
-            >
-              <option value={0} disabled>
-                Choose clothes type from list:
-              </option>
-              {Clothes?.map((cl) => (
-                <option key={cl.id} value={cl.type}>
-                  {cl.type}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="mb-3">
-            <label className="form-label">Sort by size:</label>
-            <select
-              className="form-select mb-4"
-              value={size}
-              onChange={(e) => setSize(e.target.value)}
-              aria-label="Default select example"
-            >
-              <option value={0} disabled>
-                Choose size from list:
-              </option>
-              {Size?.map((size) => (
-                <option key={size.id} value={size.type}>
-                  {size.type}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="mb-3">
-            <label className="form-label">Sort by color:</label>
-            <select
-              className="form-select mb-4"
-              value={color}
-              onChange={(e) => setColor(e.target.value)}
-              aria-label="Default select example"
-            >
-              <option value={0} disabled>
-                Choose color from list:
-              </option>
-              {Color?.map((cl) => (
-                <option key={cl.id} value={cl.type}>
-                  {cl.type}
-                </option>
-              ))}
-            </select>
-          </div>
-           <button onClick={stop}>
-          {rubFiltered === null ? 'Without sort' : 'All list'}
-          </button>   
-          <div className="mb-3"></div>
-        </div>
-      </div>
-      <div className="card m-4">
-        <h5 className="card-header">Total number cloths in the list ({stats.rubsCount})</h5>
-        <div className="card-body">
-          <ul className="list-group">
-            {rubFiltered.length > 0
-              ? (rubFiltered?.map((r) => <Line key={r.id} rubs={r} />))
-              : (rubs?.map((r) => <Line key={r.id} rubs={r} />))}
-          </ul>
-        </div>
-      </div>
-    </>
-  );
+    return (
+        <>
+            <div className="card m-4">
+                <h5 className="card-header">Sort</h5>
+                <div className="card-body">
+                    <div className="mb-3">
+                        <label className="form-label">Sort By</label>
+                        <select className="form-select" value={sortBy} onChange={e => setSortBy(e.target.value)}>
+                            {
+                                sortData.map(c => <option key={c.v} value={c.v}>{c.t}</option>)
+                            }
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div className="card m-4">
+                <h5 className="card-header">Movies List ({stats.movieCount}) <small onClick={resetFilter}>show all cats</small></h5>
+                <div className="card-body">
+                    <ul className="list-group">
+                        {
+                            movies?.map(m => m.show ? <Line key={m.id} movie={m} /> : null)
+                        }
+                    </ul>
+                </div>
+            </div>
+        </>
+    );
 }
 
 export default List;

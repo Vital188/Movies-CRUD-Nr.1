@@ -1,16 +1,12 @@
 import { useContext, useEffect, useState, useRef } from 'react';
-import Rubs from '../../Contexts/Rubs'
+import Movies from '../../Contexts/Movies';
 import getBase64 from '../../Functions/getBase64';
-import Size from "../Data/Size";
-import Clothes from "../Data/Clothes";
-import Color from "../Data/Color";
 
 function Edit() {
 
-    const [type, setType] = useState('');
-    const [size, setSize] = useState('');
-    const [color, setColor] = useState('')
+    const [title, setTitle] = useState('');
     const [price, setPrice] = useState('');
+    const [cat, setCat] = useState(0);
     const fileInput = useRef();
     const [photoPrint, setPhotoPrint] = useState(null);
     const [deletePhoto, setDeletePhoto] = useState(false);
@@ -23,14 +19,13 @@ function Edit() {
             })
     }
 
-    const { setEditData, modalData, setModalData } = useContext(Rubs);
+    const { setEditData, cats, modalData, setModalData } = useContext(Movies);
 
     const edit = () => {
         setEditData({
-            type,
-            size,
-            color,
+            title,
             price: parseFloat(price),
+            cat_id: parseInt(cat),
             id: modalData.id,
             deletePhoto: deletePhoto ? 1 : 0,
             image: photoPrint
@@ -43,10 +38,9 @@ function Edit() {
         if (null === modalData) {
             return;
         }
-        setType(modalData.type);
-        setSize(modalData.size);
-        setColor(modalData.color);
+        setTitle(modalData.title);
         setPrice(modalData.price);
+        setCat(modalData.cat_id);
         setPhotoPrint(modalData.image);
         setDeletePhoto(false);
     }, [modalData])
@@ -61,68 +55,31 @@ function Edit() {
             <div className="modal-dialog modal-dialog-centered">
                 <div className="modal-content">
                     <div className="modal-header">
-                        <h5 className="modal-type">Edit Rubs</h5>
+                        <h5 className="modal-title">Edit Movie</h5>
                         <button onClick={() => setModalData(null)} type="button" className="btn-close"></button>
                     </div>
                     <div className="modal-body"></div>
                     <div className="card m-4">
-                    <div className="card-body">
-        <select
-          className="form-select mb-4"
-          value={type}
-          onChange={(e) => setType(e.target.value)}
-          aria-label="Default select example"
-        >
-          <option value={0} disabled>
-            Choose clothes type from list:
-          </option>
-          {Clothes?.map((cl) => (
-            <option key={cl.id} value={cl.type}>
-              {cl.type}
-            </option>
-          ))}
-        </select>
-        <select
-          className="form-select mb-4"
-          value={size}
-          onChange={(e) => setSize(e.target.value)}
-          aria-label="Default select example"
-        >
-          <option value={0} disabled>
-            Choose size from list:
-          </option>
-          {Size?.map((size) => (
-            <option key={size.id} value={size.type}>
-             {size.type}
-            </option>
-          ))}
-        </select>
-        <select
-          className="form-select mb-4"
-          value={color}
-          onChange={(e) => setColor(e.target.value)}
-          aria-label="Default select example"
-        >
-          <option value={0} disabled>
-            Choose color from list:
-          </option>
-          {Color?.map((cl) => (
-            <option key={cl.id} value={cl.type}>
-            {cl.type}
-            </option>
-          ))}
-        </select>
-        <div className="mb-3">
-          <label className="form-label">Price</label>
-          <input
-            type="text"
-            className="form-control"
-            value={price}
-            onChange={(e) => setPrice(e.target.value)}
-          />
-        </div>
+                        <div className="card-body">
                             <div className="mb-3">
-                                <label className="form-label">Image</label>
+                                <label className="form-label">Movie Title</label>
+                                <input type="text" className="form-control" value={title} onChange={e => setTitle(e.target.value)} />
+                            </div>
+                            <div className="mb-3">
+                                <label className="form-label">Movie Price</label>
+                                <input type="text" className="form-control" value={price} onChange={e => setPrice(e.target.value)} />
+                            </div>
+                            <div className="mb-3">
+                                <label className="form-label">Cats</label>
+                                <select className="form-select" value={cat} onChange={e => setCat(e.target.value)}>
+                                    <option value={0} disabled>Choose from list</option>
+                                    {
+                                        cats?.map(c => <option key={c.id} value={c.id}>{c.title}</option>)
+                                    }
+                                </select>
+                            </div>
+                            <div className="mb-3">
+                                <label className="form-label">Movie Image</label>
                                 <input ref={fileInput} type="file" className="form-control" onChange={doPhoto} />
                             </div>
                             {photoPrint ? <div className='img-bin'>
